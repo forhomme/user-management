@@ -1,0 +1,82 @@
+version: "3.9"
+services:
+#  app:
+#    build:
+#      args:
+#        GITHUB_TOKEN: "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"
+#      dockerfile: Dockerfile
+#      context: .
+#    environment:
+#      PUSPEKNUBIKA_SQL_WRITE_HOST: "db"
+#    ports:
+#      - '8081:8081'
+#    depends_on:
+#      db:
+#        condition: service_started
+#      minio:
+#        condition: service_started
+#    links:
+#      - db
+#      - minio
+#    restart: on-failure
+#    networks:
+#      - backend
+
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "puspeknubika"
+      MYSQL_USER: "app_user"
+      MYSQL_PASSWORD: "superuser"
+    ports:
+      - "3306:3306"
+    expose:
+      - '3306'
+    volumes:
+      - ~/data:/var/lib/mysql
+    networks:
+      - backend
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - '27017:27017'
+    expose:
+      - '27017'
+    volumes:
+      - ~/mongo_data:/data/db
+    networks:
+      - backend
+
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_DEFAULT_BUCKETS=puspeknubika
+    volumes:
+      - ~/minio_data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    expose:
+      - '9000'
+      - '9001'
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true
+    name: worlder_default
+
+volumes:
+  db:
+    driver: local

@@ -1,0 +1,36 @@
+Content Management System
+A	Content Course Management
+	1)	Create and Update Course Content
+	2)	Content Activity Log
+	3)	Multi Language Support
+	4)	Upload Image Support
+	5)	Upload PDF Support
+	6)	Upload Video Support
+B	Assessment Management
+	1)	Timed Assessment
+	2)	Randomize Question Order
+	3)	Assessement Analytics
+C	Variative Assessment Method Support
+	1)	Input Image Support
+	2)	Input Video Support
+	3)	Feedback Mechanisms Support
+D	Submission Auto Checker
+	1)	Plagiarism Detection
+	2)	Writting Checking
+	3)	Automated Scoring System
+	4)	Submission Limits
+E	Report & Scoring System
+	1)	Grade Report Charts
+	2)	Real Time Leaderboard View
+	3)	Report Templates
+	4)	Export to CSV Support
+	5)	Export to PDF Support
+F	User Management
+	1)	Register User
+	2)	User Role Authorization
+	3)	User Password Management
+	4)	Satuan Kerja Management - need to verify
+	5)	User Position Management - need to verify
+	6)	Activity Notification - need to verify
+	7)	System Activity Log
+	8)	User Profile Management

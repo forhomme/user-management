@@ -1,0 +1,37 @@
+Logger:
+  Level: "debug"
+  Output: "stdout"
+Router:
+  Port: 8082
+  CORS: true
+  BodyDump: true
+  Duration: 1h
+  SigningMethod: "HS256"
+  SigningKey: "rahasia"
+  AuthorizationKey: "users"
+  UserIdKey: "user_id"
+  RoleIdKey: "role_id"
+  EmailKey: "email"
+SQL:
+  write:
+    Host: "localhost"
+    Database: "puspeknubika"
+    User: "app_user"
+    Password: "superuser"
+S3:
+  upload:
+    Endpoint: "localhost:9000"
+    AccessKey: "minioadmin"
+    SecretAccessKey: "minioadmin"
+    BucketName: "puspeknubika"
+ApiClient:
+  Timeout: 5s
+
+SecretKey: "rahasia"
+AuthExpire: "1h"
+RefreshTokenExpire: "4h"
+DatabaseUri: "mongodb://localhost:27017"
+Database: "puspeknubika"
+CourseCollection: "course"
+CategoryCollection: "category"
+AuditTrailCollection: "audit_trail"
