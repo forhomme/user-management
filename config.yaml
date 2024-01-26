@@ -30,7 +30,7 @@ ApiClient:
 SecretKey: "rahasia"
 AuthExpire: "1h"
 RefreshTokenExpire: "4h"
-DatabaseUri: "mongodb://localhost:27017"
+DatabaseUri: "mongodb://root:rootpassword@localhost:27017"
 Database: "puspeknubika"
 CourseCollection: "course"
 CategoryCollection: "category"

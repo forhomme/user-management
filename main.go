@@ -7,16 +7,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"os"
 	"path/filepath"
-	s "user-management/app/audit_trail/service"
+	i "user-management/app/interface"
+	"user-management/app/service"
 
-	in "user-management/app/audit_trail/interface"
-	i "user-management/app/courses/interface"
-	"user-management/app/courses/service"
-	"user-management/app/user/infrastructure"
-	"user-management/app/user/interface"
-	"user-management/app/user/usecase"
+	"user-management/app/common/constants"
 	"user-management/config"
-	"user-management/constants"
 
 	"github.com/forhomme/app-base/cmd"
 	"github.com/forhomme/app-base/infrastructure/baselogger"
@@ -35,7 +30,7 @@ const (
 
 func main() {
 	appLogger := baselogger.NewBaseLogger(StdOut)
-	// Execute command
+	// Execute query
 	err := cmd.Execute(appLogger, newInjectEndpoints(appLogger))
 	if err != nil {
 		appLogger.Fatal(fmt.Errorf("Error in main.cmd.Execute: %w", err))
@@ -67,18 +62,9 @@ func newInjectEndpoints(appLogger logger.Logger) cmd.InjectEndpoints {
 			panic(err)
 		}
 
-		// user service
-		db := infrastructure.NewDatabase(cfg, logger, sqlHandler[constants.Write])
-		uc := usecase.NewCoreUsecase(cfg, logger, db, storageHandler[constants.Upload])
-		userCtrl := _interface.NewHttpTransport(cfg, logger, uc)
-
-		// audit service
-		auditApp := s.NewAuditApplication(cfg, logger, client)
-		auditCtrl := in.NewAuditTrailService(cfg, logger, auditApp)
-
 		// course service
-		courseApp := service.NewApplication(cfg, logger, client)
-		courseCtrl := i.NewHttpServer(cfg, logger, courseApp, auditCtrl)
+		courseApp := service.NewApplication(cfg, logger, client, sqlHandler[constants.Write], storageHandler[constants.Upload])
+		courseCtrl := i.NewHttpServer(cfg, logger, courseApp)
 
 		userManagement := route.API.Group("/users")
 		authUserManagement := route.API.Group("/users")
@@ -87,12 +73,14 @@ func newInjectEndpoints(appLogger logger.Logger) cmd.InjectEndpoints {
 		courseManagement := route.API.Group("/course")
 		courseManagement.Use(route.AuthUserMiddleware)
 
+		uploadManagement := route.API.Group("/upload")
+		uploadManagement.Use(route.AuthUserMiddleware)
+
 		// the endpoint
-		userManagement.POST("/signup", router.C(userCtrl.SignUp))
-		userManagement.POST("/login", router.C(userCtrl.Login))
-		userManagement.POST("/refresh-token", router.C(userCtrl.RefreshToken))
-		authUserManagement.POST("/change-password", router.C(userCtrl.ChangePassword))
-		authUserManagement.POST("/menu", router.C(userCtrl.GetMenu))
+		userManagement.POST("/signup", router.C(courseCtrl.SignUp))
+		userManagement.POST("/login", router.C(courseCtrl.Login))
+		userManagement.POST("/refresh-token", router.C(courseCtrl.RefreshToken))
+		authUserManagement.POST("/change-password", router.C(courseCtrl.ChangePassword))
 
 		// course endpoint
 		courseManagement.GET("/category", router.C(courseCtrl.GetAllCategory))
@@ -100,6 +88,9 @@ func newInjectEndpoints(appLogger logger.Logger) cmd.InjectEndpoints {
 		courseManagement.POST("/insert", router.C(courseCtrl.InsertCourse))
 		courseManagement.POST("/get", router.C(courseCtrl.GetCourses))
 		courseManagement.PUT("/update", router.C(courseCtrl.UpdateCourse))
+
+		// upload endpoint
+		uploadManagement.POST("", router.C(courseCtrl.UploadFile))
 
 		err = InitDB(sqlHandler[constants.Write], constants.DBInitFile)
 		if err != nil {

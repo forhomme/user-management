@@ -15,6 +15,7 @@ type Config struct {
 	CourseCollection     string
 	CategoryCollection   string
 	AuditTrailCollection string
+	BucketName           string
 	AuthExpire           time.Duration
 	RefreshTokenExpire   time.Duration
 }
