@@ -6,9 +6,10 @@ import (
 )
 
 type UploadFile struct {
-	FileName string
-	File     multipart.File
-	Header   *multipart.FileHeader
+	FileName  string `json:"file_name" validate:"required"`
+	Requester string
+	File      multipart.File
+	Header    *multipart.FileHeader
 }
 
 var EmptyFileError = errors.New("file uploaded is empty")
@@ -22,4 +23,9 @@ func (u *UploadFile) Validate() error {
 		return EmptyFileError
 	}
 	return nil
+}
+
+type UploadFileResponse struct {
+	Filepath string
+	FileUrl  string
 }

@@ -1,6 +1,8 @@
 package user
 
-import "user-management/app/common/utils"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
 type ChangePassword struct {
 	UserId      string `json:"user_id"`
@@ -12,8 +14,8 @@ func (c *ChangePassword) IsValid(user *User) bool {
 	if c.OldPassword == c.NewPassword {
 		return false
 	}
-	hashOldPass, _ := utils.HashPassword(c.OldPassword)
-	if user.Password != hashOldPass {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(c.OldPassword))
+	if err != nil {
 		return false
 	}
 	return true

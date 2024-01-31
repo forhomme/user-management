@@ -19,7 +19,7 @@ func (d commandLoggingDecorator[C]) Handle(ctx context.Context, cmd C) (err erro
 		if err == nil {
 			d.logger.Info("Command executed successfully")
 		} else {
-			d.logger.Error(fmt.Errorf("Failed execute the command: %w", err))
+			d.logger.Error(fmt.Errorf("failed execute the command: %w", err))
 		}
 	}()
 
@@ -39,7 +39,7 @@ func (d queryLoggingDecorator[C, R]) Handle(ctx context.Context, cmd C) (result 
 		if err == nil {
 			d.logger.Info("Query executed successfully")
 		} else {
-			d.logger.Error(fmt.Errorf("Failed execute the query: %w", err))
+			d.logger.Error(fmt.Errorf("failed execute the query: %w", err))
 		}
 	}()
 

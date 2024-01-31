@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/database"
 	"github.com/forhomme/app-base/usecase/logger"
 	"github.com/forhomme/app-base/usecase/storage"
@@ -12,24 +13,25 @@ import (
 	"user-management/config"
 )
 
-func NewApplication(cfg *config.Config, log logger.Logger, client *mongo.Client, sqlHandler database.SqlHandler, storage storage.Storage) usecase.Application {
+func NewApplication(cfg *config.Config, log logger.Logger, client *mongo.Client, sqlHandler database.SqlHandler, storage storage.Storage, tracer *telemetry.OtelSdk) usecase.Application {
 	mongoDB := client.Database(cfg.Database)
-	mongoRepo := adapters.NewCourseMongoRepository(cfg, log, mongoDB)
-	mysqlRepo := adapters.NewCourseMysqlRepository(cfg, log, sqlHandler)
+	mongoRepo := adapters.NewCourseMongoRepository(cfg, log, mongoDB, tracer)
+	mysqlRepo := adapters.NewCourseMysqlRepository(cfg, log, sqlHandler, tracer)
 
 	return usecase.Application{
 		Commands: usecase.Commands{
-			ChangePassword: command.NewChangePasswordRepository(mysqlRepo, log),
-			AddCategory:    command.NewAddCategoryRepository(mysqlRepo, log),
-			AddCourse:      command.NewAddCourseRepository(mongoRepo, log),
-			ReplaceCourse:  command.NewReplaceCourseRepository(mongoRepo, log),
+			ChangePassword: command.NewChangePasswordRepository(mysqlRepo, log, tracer),
+			AddCategory:    command.NewAddCategoryRepository(mysqlRepo, log, tracer),
+			AddCourse:      command.NewAddCourseRepository(mongoRepo, log, tracer),
+			ReplaceCourse:  command.NewReplaceCourseRepository(mongoRepo, log, tracer),
 		},
 		Queries: usecase.Queries{
-			SignUp:           query.NewSignUpRepository(mysqlRepo, log, cfg),
-			Login:            query.NewLoginRepository(mysqlRepo, log, cfg),
-			GetAllCategories: query.NewGetCategoryRepository(mysqlRepo, log),
-			GetCourses:       query.NewGetCourseRepository(mongoRepo, log),
-			UploadFile:       query.NewUploadFileHandler(cfg, storage, log),
+			SignUp:           query.NewSignUpRepository(mysqlRepo, log, cfg, tracer),
+			Login:            query.NewLoginRepository(mysqlRepo, log, cfg, tracer),
+			RefreshToken:     query.NewRefreshTokenRepository(mysqlRepo, log, cfg, tracer),
+			GetAllCategories: query.NewGetCategoryRepository(mysqlRepo, log, tracer),
+			GetCourses:       query.NewGetCourseRepository(mongoRepo, log, tracer),
+			UploadFile:       query.NewUploadFileHandler(cfg, storage, log, tracer),
 		},
 	}
 }

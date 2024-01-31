@@ -2,48 +2,34 @@ package query
 
 import (
 	"context"
-	"fmt"
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/logger"
-	"github.com/mitchellh/mapstructure"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/course"
 )
 
 type AllCategory struct {
-	Category []*Category `json:"category"`
+	Category []*course.Category `json:"category"`
 }
 
-type Category struct {
-	CategoryId   int    `json:"category_id"`
-	CategoryName string `json:"category_name"`
-}
-
-type GetCategoryHandler decorator.QueryHandler[*Category, *AllCategory]
+type GetCategoryHandler decorator.QueryHandler[*course.Category, *AllCategory]
 
 type getCategoryRepository struct {
 	dbRepo course.QueryRepository
-	log    logger.Logger
 }
 
-func NewGetCategoryRepository(dbRepo course.QueryRepository, log logger.Logger) decorator.QueryHandler[*Category, *AllCategory] {
-	return decorator.ApplyQueryDecorators[*Category, *AllCategory](
-		getCategoryRepository{dbRepo: dbRepo, log: log},
-		log)
+func NewGetCategoryRepository(dbRepo course.QueryRepository, log logger.Logger, tracer *telemetry.OtelSdk) decorator.QueryHandler[*course.Category, *AllCategory] {
+	return decorator.ApplyQueryDecorators[*course.Category, *AllCategory](
+		getCategoryRepository{dbRepo: dbRepo},
+		log,
+		tracer)
 }
 
-func (g getCategoryRepository) Handle(ctx context.Context, _ *Category) (*AllCategory, error) {
-	data, err := g.dbRepo.GetCategories(ctx)
+func (g getCategoryRepository) Handle(ctx context.Context, _ *course.Category) (out *AllCategory, err error) {
+	categories, err := g.dbRepo.GetCategories(ctx)
 	if err != nil {
-		g.log.Error(fmt.Errorf("error get category from database: %w", err))
 		return nil, err
 	}
 
-	out := make([]*Category, 0)
-	err = mapstructure.Decode(data, &out)
-	if err != nil {
-		g.log.Error(fmt.Errorf("error decode category: %w", err))
-		return nil, err
-	}
-
-	return &AllCategory{Category: out}, nil
+	return &AllCategory{Category: categories}, nil
 }

@@ -3,6 +3,7 @@ package user
 import (
 	"errors"
 	"github.com/golang-jwt/jwt"
+	"time"
 	"user-management/config"
 )
 
@@ -29,7 +30,10 @@ func (r *RefreshToken) ParsingToken(user *User, cfg *config.Config) error {
 		if rtClaims["sub"].(string) != user.UserId {
 			return ErrorTokenNotValid
 		}
-		return ErrorTokenNotValid
+		if int64(rtClaims["exp"].(float64)) < time.Now().Unix() {
+			return ErrorTokenNotValid
+		}
+		return nil
 	}
-	return nil
+	return ErrorTokenNotValid
 }

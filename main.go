@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"os"
@@ -45,6 +46,7 @@ func newInjectEndpoints(appLogger logger.Logger) cmd.InjectEndpoints {
 		httpHandler http_handler.HttpHandler,
 		sqlHandler map[string]database.SqlHandler,
 		storageHandler map[string]storage.Storage,
+		tracer *telemetry.OtelSdk,
 	) error {
 
 		cfg, err := config.LoadLocalConfig(viper)
@@ -52,19 +54,21 @@ func newInjectEndpoints(appLogger logger.Logger) cmd.InjectEndpoints {
 			appLogger.Fataf(err, "LoadConfig: %v", err)
 		}
 
+		ctx := context.TODO()
+
 		// Use the SetServerAPIOptions() method to set the Stable API version to 1
 		serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 		opts := options.Client().ApplyURI(cfg.DatabaseUri).SetServerAPIOptions(serverAPI)
 
 		// Create a new client and connect to the server
-		client, err := mongo.Connect(context.TODO(), opts)
+		client, err := mongo.Connect(ctx, opts)
 		if err != nil {
 			panic(err)
 		}
 
 		// course service
-		courseApp := service.NewApplication(cfg, logger, client, sqlHandler[constants.Write], storageHandler[constants.Upload])
-		courseCtrl := i.NewHttpServer(cfg, logger, courseApp)
+		courseApp := service.NewApplication(cfg, logger, client, sqlHandler[constants.Write], storageHandler[constants.Upload], tracer)
+		courseCtrl := i.NewHttpServer(cfg, logger, tracer, courseApp)
 
 		userManagement := route.API.Group("/users")
 		authUserManagement := route.API.Group("/users")

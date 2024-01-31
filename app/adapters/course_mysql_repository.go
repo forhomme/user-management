@@ -2,9 +2,11 @@ package adapters
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	db "github.com/forhomme/app-base/usecase/database"
 	"github.com/forhomme/app-base/usecase/logger"
 	"github.com/pkg/errors"
+	"go.opentelemetry.io/otel/codes"
 	course2 "user-management/app/domain/course"
 	"user-management/app/domain/user"
 	"user-management/config"
@@ -26,44 +28,66 @@ const (
 )
 
 type CourseMysqlRepository struct {
-	cfg *config.Config
-	log logger.Logger
+	cfg    *config.Config
+	log    logger.Logger
+	tracer *telemetry.OtelSdk
 	db.SqlHandler
 }
 
-func NewCourseMysqlRepository(cfg *config.Config, log logger.Logger, sqlHandler db.SqlHandler) *CourseMysqlRepository {
+func NewCourseMysqlRepository(cfg *config.Config, log logger.Logger, sqlHandler db.SqlHandler, tracer *telemetry.OtelSdk) *CourseMysqlRepository {
 	return &CourseMysqlRepository{
 		cfg:        cfg,
 		log:        log,
+		tracer:     tracer,
 		SqlHandler: sqlHandler,
 	}
 }
 
-func (c *CourseMysqlRepository) AddCategory(ctx context.Context, categoryName string) error {
-	_, err := c.SqlHandler.Exec(queryAddCategory, categoryName)
+func (c *CourseMysqlRepository) AddCategory(ctx context.Context, categoryName string) (err error) {
+	ctx, span := c.tracer.Tracer.Start(ctx, "db.add_category")
+	defer span.End()
+
+	defer func() {
+		if err != nil {
+			c.log.Error(err)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+		}
+	}()
+
+	_, err = c.SqlHandler.Exec(queryAddCategory, categoryName)
 	if err != nil {
-		c.log.Error(err)
 		return err
 	}
 	return nil
 }
 
-func (c *CourseMysqlRepository) GetCategories(ctx context.Context) ([]*course2.Category, error) {
-	row, err := c.SqlHandler.Query(queryGetAllCategory)
+func (c *CourseMysqlRepository) GetCategories(ctx context.Context) (out []*course2.Category, err error) {
+	ctx, span := c.tracer.Tracer.Start(ctx, "db.get_category")
+	defer span.End()
+
+	defer func() {
+		if err != nil {
+			c.log.Error(err)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+		}
+	}()
+
+	rows, err := c.SqlHandler.Query(queryGetAllCategory)
 	if err != nil {
-		c.log.Error(err)
 		return nil, err
 	}
-	defer row.Close()
+	defer rows.Close()
 
-	out := make([]*course2.Category, 0)
-	if row.Next() {
+	out = make([]*course2.Category, 0)
+	for rows.Next() {
 		var data = &course2.Category{}
 		dataRows := []interface{}{
 			&data.CategoryId,
 			&data.CategoryName,
 		}
-		err = row.Scan(dataRows...)
+		err = rows.Scan(dataRows...)
 		if err != nil {
 			return nil, errors.Wrap(err, "Repo.GetCategories.Rows.Scan")
 		}
@@ -84,15 +108,25 @@ func (c *CourseMysqlRepository) UpdateCourse(ctx context.Context, id string, upd
 	return errors.New("not implemented")
 }
 
-func (c *CourseMysqlRepository) GetUserById(id string) (*user.User, error) {
+func (c *CourseMysqlRepository) GetUserById(ctx context.Context, id string) (out *user.User, err error) {
+	ctx, span := c.tracer.Tracer.Start(ctx, "db.getuserid")
+	defer span.End()
+
+	defer func() {
+		if err != nil {
+			c.log.Error(err)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+		}
+	}()
+
 	row, err := c.SqlHandler.Query(queryGetUserById, id)
 	if err != nil {
-		c.log.Error(err)
 		return nil, err
 	}
 	defer row.Close()
 
-	out := new(user.User)
+	out = new(user.User)
 	if row.Next() {
 		dataRows := []interface{}{
 			&out.UserId,
@@ -109,15 +143,25 @@ func (c *CourseMysqlRepository) GetUserById(id string) (*user.User, error) {
 	return out, nil
 }
 
-func (c *CourseMysqlRepository) GetUserByEmail(email string) (*user.User, error) {
+func (c *CourseMysqlRepository) GetUserByEmail(ctx context.Context, email string) (out *user.User, err error) {
+	ctx, span := c.tracer.Tracer.Start(ctx, "db.getuseremail")
+	defer span.End()
+
+	defer func() {
+		if err != nil {
+			c.log.Error(err)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+		}
+	}()
+
 	row, err := c.SqlHandler.Query(queryGetUserByEmail, email)
 	if err != nil {
-		c.log.Error(err)
 		return nil, err
 	}
 	defer row.Close()
 
-	out := new(user.User)
+	out = new(user.User)
 	if row.Next() {
 		dataRows := []interface{}{
 			&out.UserId,
@@ -134,31 +178,44 @@ func (c *CourseMysqlRepository) GetUserByEmail(email string) (*user.User, error)
 	return out, nil
 }
 
-func (c *CourseMysqlRepository) InsertUser(user *user.User) error {
+func (c *CourseMysqlRepository) InsertUser(ctx context.Context, user *user.User) error {
+	ctx, span := c.tracer.Tracer.Start(ctx, "db.insertuser")
+	defer span.End()
+
 	_, err := c.SqlHandler.Exec(queryInsertUser, user.UserId, user.Email, user.Password, user.RoleId, user.UserId)
 	if err != nil {
 		c.log.Error(err)
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 		return err
 	}
 	return nil
 }
 
-func (c *CourseMysqlRepository) UpdateUser(id string, updateFn func(u *user.User) (*user.User, error)) error {
-	existingUser, err := c.GetUserById(id)
+func (c *CourseMysqlRepository) UpdateUser(ctx context.Context, id string, updateFn func(u *user.User) (*user.User, error)) (err error) {
+	ctx, span := c.tracer.Tracer.Start(ctx, "db.updateuser")
+	defer span.End()
+
+	defer func() {
+		if err != nil {
+			c.log.Error(err)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+		}
+	}()
+
+	existingUser, err := c.GetUserById(ctx, id)
 	if err != nil {
-		c.log.Error(err)
 		return err
 	}
 
 	updateUser, err := updateFn(existingUser)
 	if err != nil {
-		c.log.Error(err)
 		return err
 	}
 
 	_, err = c.SqlHandler.Exec(queryUpdateUserById, updateUser.Email, updateUser.Password, updateUser.RoleId, updateUser.UserId)
 	if err != nil {
-		c.log.Error(err)
 		return err
 	}
 	return nil

@@ -2,65 +2,42 @@ package query
 
 import (
 	"context"
-	"fmt"
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/logger"
-	"github.com/mitchellh/mapstructure"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/course"
-	"user-management/app/usecase/command"
 )
 
-type GetCourses struct {
-	Id         string
-	CategoryId int    `json:"CategoryId"`
-	Filter     string `json:"Filter"`
-	PerPage    int    `json:"PerPage"`
-	Page       int    `json:"Page"`
-	User       *course.User
-}
-
 type AllCourse struct {
-	Courses []*command.AddCourse `json:"Courses"`
+	Courses []*course.CoursePath `json:"Courses"`
 }
 
-type GetCourseHandler decorator.QueryHandler[*GetCourses, *AllCourse]
+type GetCourseHandler decorator.QueryHandler[*course.FilterCourse, *AllCourse]
 
 type getCourseRepository struct {
 	dbRepo course.QueryRepository
-	logger logger.Logger
 }
 
-func NewGetCourseRepository(dbRepo course.QueryRepository, logger logger.Logger) decorator.QueryHandler[*GetCourses, *AllCourse] {
-	return decorator.ApplyQueryDecorators[*GetCourses, *AllCourse](
-		getCourseRepository{dbRepo: dbRepo, logger: logger},
+func NewGetCourseRepository(dbRepo course.QueryRepository, logger logger.Logger, tracer *telemetry.OtelSdk) decorator.QueryHandler[*course.FilterCourse, *AllCourse] {
+	return decorator.ApplyQueryDecorators[*course.FilterCourse, *AllCourse](
+		getCourseRepository{dbRepo: dbRepo},
 		logger,
+		tracer,
 	)
 }
 
-func (g getCourseRepository) Handle(ctx context.Context, in *GetCourses) (*AllCourse, error) {
-	out := make([]*command.AddCourse, 0)
-	courses, err := g.dbRepo.GetCourses(ctx, &course.FilterCourse{
-		ID:         in.Id,
-		Filter:     in.Filter,
-		CategoryId: in.CategoryId,
-		Page:       int64(in.Page),
-		PerPage:    int64(in.PerPage),
-	})
+func (g getCourseRepository) Handle(ctx context.Context, in *course.FilterCourse) (out *AllCourse, err error) {
+	data := make([]*course.CoursePath, 0)
+	courses, err := g.dbRepo.GetCourses(ctx, in)
 	if err != nil {
-		g.logger.Error(fmt.Errorf("error get all data course %w", err))
 		return nil, err
 	}
 	for _, c := range courses {
 		if err = course.CanUserSeeCourse(in.User, c); err != nil {
 			continue
 		}
-		data := &command.AddCourse{}
-		err = mapstructure.Decode(c, data)
-		if err != nil {
-			g.logger.Error(fmt.Errorf("error decode: %w", err))
-			continue
-		}
-		out = append(out, data)
+		c.List()
+		data = append(data, c)
 	}
-	return &AllCourse{Courses: out}, nil
+	return &AllCourse{Courses: data}, nil
 }

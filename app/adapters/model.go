@@ -1,27 +1,16 @@
 package adapters
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"user-management/app/domain/course"
+)
 
 type ParentCourseModel struct {
-	CourseId    primitive.ObjectID `json:"_id" bson:"_id"`
-	CategoryId  string             `json:"category_id"`
-	Title       string             `json:"title"`
-	Description string             `json:"description"`
-	Tags        []string           `json:"tags"`
-	IsPublish   int                `json:"is_publish"`
-	SubCourses  []*CourseModel     `json:"sub_courses"`
-}
-
-type CourseModel struct {
-	Title       string          `json:"title"`
-	Description string          `json:"description"`
-	Contents    []*ContentModel `json:"contents"`
-}
-
-type ContentModel struct {
-	NeedLogged  bool   `json:"need_logged"`
-	Ordering    int    `json:"ordering"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Content     string `json:"content"`
+	CourseId       primitive.ObjectID `json:"_id" bson:"_id"`
+	IsPublished    bool               `json:"is_published"`
+	TotalSubCourse int                `json:"total_sub_course,omitempty"`
+	Category       *course.Category   `json:"category"`
+	Title          string             `json:"title"`
+	Description    string             `json:"description"`
+	SubCourses     []*course.Course   `json:"sub_courses"`
 }

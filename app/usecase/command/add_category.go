@@ -2,32 +2,28 @@ package command
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/logger"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/course"
 )
 
-type AddCategory struct {
-	CategoryName string `json:"category_name"`
-}
-
-type AddCategoryHandler decorator.CommandHandler[*AddCategory]
+type AddCategoryHandler decorator.CommandHandler[*course.Category]
 
 type addCategoryRepository struct {
 	dbRepo course.CommandRepository
-	log    logger.Logger
 }
 
-func NewAddCategoryRepository(dbRepo course.CommandRepository, log logger.Logger) decorator.CommandHandler[*AddCategory] {
-	return decorator.ApplyCommandDecorators[*AddCategory](
-		addCategoryRepository{dbRepo: dbRepo, log: log},
-		log)
+func NewAddCategoryRepository(dbRepo course.CommandRepository, log logger.Logger, tracer *telemetry.OtelSdk) decorator.CommandHandler[*course.Category] {
+	return decorator.ApplyCommandDecorators[*course.Category](
+		addCategoryRepository{dbRepo: dbRepo},
+		log,
+		tracer)
 }
 
-func (a addCategoryRepository) Handle(ctx context.Context, in *AddCategory) error {
-	err := a.dbRepo.AddCategory(ctx, in.CategoryName)
+func (a addCategoryRepository) Handle(ctx context.Context, in *course.Category) (err error) {
+	err = a.dbRepo.AddCategory(ctx, in.CategoryName)
 	if err != nil {
-		a.log.Error(err)
 		return err
 	}
 	return nil

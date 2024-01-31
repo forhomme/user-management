@@ -3,6 +3,7 @@ package query
 import (
 	"context"
 	"errors"
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/logger"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/user"
@@ -13,21 +14,20 @@ type LoginHandler decorator.QueryHandler[*user.Login, *user.Token]
 
 type loginRepository struct {
 	dbRepo user.QueryRepository
-	logger logger.Logger
 	cfg    *config.Config
 }
 
-func NewLoginRepository(dbRepo user.QueryRepository, logger logger.Logger, cfg *config.Config) decorator.QueryHandler[*user.Login, *user.Token] {
+func NewLoginRepository(dbRepo user.QueryRepository, logger logger.Logger, cfg *config.Config, tracer *telemetry.OtelSdk) decorator.QueryHandler[*user.Login, *user.Token] {
 	return decorator.ApplyQueryDecorators[*user.Login, *user.Token](
-		loginRepository{dbRepo: dbRepo, logger: logger, cfg: cfg},
+		loginRepository{dbRepo: dbRepo, cfg: cfg},
 		logger,
+		tracer,
 	)
 }
 
-func (l loginRepository) Handle(ctx context.Context, in *user.Login) (*user.Token, error) {
-	userData, err := l.dbRepo.GetUserByEmail(in.Email)
+func (l loginRepository) Handle(ctx context.Context, in *user.Login) (token *user.Token, err error) {
+	userData, err := l.dbRepo.GetUserByEmail(ctx, in.Email)
 	if err != nil {
-		l.logger.Error(err)
 		return nil, err
 	}
 	if !userData.IsExist() {
@@ -36,13 +36,11 @@ func (l loginRepository) Handle(ctx context.Context, in *user.Login) (*user.Toke
 
 	err = in.CheckPassword(userData.Password)
 	if err != nil {
-		l.logger.Error(err)
 		return nil, err
 	}
 
-	token, err := userData.GenerateToken(l.cfg)
+	token, err = userData.GenerateToken(l.cfg)
 	if err != nil {
-		l.logger.Error(err)
 		return nil, err
 	}
 	return token, nil

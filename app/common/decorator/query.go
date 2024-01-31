@@ -2,12 +2,16 @@ package decorator
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/logger"
 )
 
-func ApplyQueryDecorators[H any, R any](handler QueryHandler[H, R], logger logger.Logger) QueryHandler[H, R] {
+func ApplyQueryDecorators[H any, R any](handler QueryHandler[H, R], logger logger.Logger, tracer *telemetry.OtelSdk) QueryHandler[H, R] {
 	return queryLoggingDecorator[H, R]{
-		base:   handler,
+		base: queryMetricsDecorator[H, R]{
+			base:   handler,
+			client: tracer,
+		},
 		logger: logger,
 	}
 }

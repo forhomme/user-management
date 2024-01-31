@@ -3,10 +3,10 @@ package course
 import "sort"
 
 type Course struct {
-	Order       int
-	Title       string
-	Description string
-	Contents    []*Content
+	Order       int        `json:"order"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Contents    []*Content `json:"contents,omitempty"`
 }
 
 func (c *Course) init() {

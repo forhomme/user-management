@@ -5,27 +5,27 @@ import (
 )
 
 type ErrorMessage struct {
-	status  errs.ErrorType `json:"status"`
-	message string         `json:"message"`
+	Status  errs.ErrorType `json:"status"`
+	Message string         `json:"message"`
 }
 
 func ParseMessage(err error) ErrorMessage {
 	return ErrorMessage{
-		status:  errs.GetType(err),
-		message: err.Error(),
+		Status:  errs.GetType(err),
+		Message: err.Error(),
 	}
 }
 
 type ResponseMessage struct {
-	status  int         `json:"status"`
-	message string      `json:"message"`
-	data    interface{} `json:"data"`
+	Status  int         `json:"status"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 func ParseResponse(status int, message string, data interface{}) ResponseMessage {
 	return ResponseMessage{
-		status:  status,
-		message: message,
-		data:    data,
+		Status:  status,
+		Message: message,
+		Data:    data,
 	}
 }

@@ -1,11 +1,13 @@
 package user
 
+import "context"
+
 type CommandRepository interface {
-	InsertUser(user *User) error
-	UpdateUser(id string, updateFn func(u *User) (*User, error)) error
+	InsertUser(ctx context.Context, user *User) error
+	UpdateUser(ctx context.Context, id string, updateFn func(u *User) (*User, error)) error
 }
 
 type QueryRepository interface {
-	GetUserById(id string) (*User, error)
-	GetUserByEmail(email string) (*User, error)
+	GetUserById(ctx context.Context, id string) (*User, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
 }

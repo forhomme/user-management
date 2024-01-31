@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/logger"
 	"github.com/google/uuid"
 	"user-management/app/common/decorator"
@@ -13,21 +14,20 @@ type SignUpHandler decorator.QueryHandler[*user.SignUp, *user.Token]
 
 type signUpRepository struct {
 	dbRepo user.CommandRepository
-	logger logger.Logger
 	cfg    *config.Config
 }
 
-func NewSignUpRepository(dbRepo user.CommandRepository, logger logger.Logger, cfg *config.Config) decorator.QueryHandler[*user.SignUp, *user.Token] {
+func NewSignUpRepository(dbRepo user.CommandRepository, logger logger.Logger, cfg *config.Config, tracer *telemetry.OtelSdk) decorator.QueryHandler[*user.SignUp, *user.Token] {
 	return decorator.ApplyQueryDecorators[*user.SignUp, *user.Token](
-		signUpRepository{dbRepo: dbRepo, logger: logger, cfg: cfg},
+		signUpRepository{dbRepo: dbRepo, cfg: cfg},
 		logger,
+		tracer,
 	)
 }
 
-func (s signUpRepository) Handle(ctx context.Context, in *user.SignUp) (*user.Token, error) {
-	err := in.HashPassword()
+func (s signUpRepository) Handle(ctx context.Context, in *user.SignUp) (token *user.Token, err error) {
+	err = in.HashPassword()
 	if err != nil {
-		s.logger.Error(err)
 		return nil, err
 	}
 	userData := &user.User{
@@ -36,14 +36,12 @@ func (s signUpRepository) Handle(ctx context.Context, in *user.SignUp) (*user.To
 		Email:    in.Email,
 		Password: in.Password,
 	}
-	err = s.dbRepo.InsertUser(userData)
+	err = s.dbRepo.InsertUser(ctx, userData)
 	if err != nil {
-		s.logger.Error(err)
 		return nil, err
 	}
-	token, err := userData.GenerateToken(s.cfg)
+	token, err = userData.GenerateToken(s.cfg)
 	if err != nil {
-		s.logger.Error(err)
 		return nil, err
 	}
 	return token, nil

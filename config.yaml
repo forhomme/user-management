@@ -2,16 +2,15 @@ Logger:
   Level: "debug"
   Output: "stdout"
 Router:
-  Port: 8082
+  Port: 8081
   CORS: true
   BodyDump: true
   Duration: 1h
-  SigningMethod: "HS256"
-  SigningKey: "rahasia"
-  AuthorizationKey: "users"
   UserIdKey: "user_id"
   RoleIdKey: "role_id"
   EmailKey: "email"
+  AppName: "AppName"
+  Version: "1.0.0"
 SQL:
   write:
     Host: "localhost"
@@ -23,13 +22,17 @@ S3:
     Endpoint: "localhost:9000"
     AccessKey: "minioadmin"
     SecretAccessKey: "minioadmin"
-    BucketName: "puspeknubika"
+    BucketName: "content"
 ApiClient:
   Timeout: 5s
+Telemetry:
+  Host: "http://project2_secret_token@localhost:14318?grpc=14317"
+  AppName: "AppName"
+  Version: "1.0.0"
 
 SecretKey: "rahasia"
 AuthExpire: "1h"
-RefreshTokenExpire: "4h"
+RefreshTokenExpire: "720h"
 DatabaseUri: "mongodb://root:rootpassword@localhost:27017"
 Database: "puspeknubika"
 CourseCollection: "course"
