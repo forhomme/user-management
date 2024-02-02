@@ -3,8 +3,8 @@ package query
 import (
 	"context"
 	"errors"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
-	"github.com/forhomme/app-base/usecase/logger"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/user"
 	"user-management/config"
@@ -17,7 +17,7 @@ type loginRepository struct {
 	cfg    *config.Config
 }
 
-func NewLoginRepository(dbRepo user.QueryRepository, logger logger.Logger, cfg *config.Config, tracer *telemetry.OtelSdk) decorator.QueryHandler[*user.Login, *user.Token] {
+func NewLoginRepository(dbRepo user.QueryRepository, logger *baselogger.Logger, cfg *config.Config, tracer *telemetry.OtelSdk) decorator.QueryHandler[*user.Login, *user.Token] {
 	return decorator.ApplyQueryDecorators[*user.Login, *user.Token](
 		loginRepository{dbRepo: dbRepo, cfg: cfg},
 		logger,

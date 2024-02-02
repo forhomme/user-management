@@ -2,8 +2,8 @@ package query
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
-	"github.com/forhomme/app-base/usecase/logger"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/course"
 )
@@ -18,7 +18,7 @@ type getCourseRepository struct {
 	dbRepo course.QueryRepository
 }
 
-func NewGetCourseRepository(dbRepo course.QueryRepository, logger logger.Logger, tracer *telemetry.OtelSdk) decorator.QueryHandler[*course.FilterCourse, *AllCourse] {
+func NewGetCourseRepository(dbRepo course.QueryRepository, logger *baselogger.Logger, tracer *telemetry.OtelSdk) decorator.QueryHandler[*course.FilterCourse, *AllCourse] {
 	return decorator.ApplyQueryDecorators[*course.FilterCourse, *AllCourse](
 		getCourseRepository{dbRepo: dbRepo},
 		logger,

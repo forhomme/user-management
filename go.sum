@@ -71,6 +71,8 @@ github.com/forhomme/app-base v0.1.7 h1:1rhyi5PJPBARum/16FrVvqwXyU+YT6RRgm5u/8XTO
 github.com/forhomme/app-base v0.1.7/go.mod h1:n2hs5BL/IwJVa1Qiwi21D6oYZqUrfhfg3h1HnWMSab4=
 github.com/forhomme/app-base v0.1.8 h1:bdr9FkmDlsVY5T9h4WES7lEcvL/BoDV2CxcL53W6gcM=
 github.com/forhomme/app-base v0.1.8/go.mod h1:n2hs5BL/IwJVa1Qiwi21D6oYZqUrfhfg3h1HnWMSab4=
+github.com/forhomme/app-base v0.1.9 h1:vZ6Lt/eUASt+3d/YfbrW1rwfVpsaDjpMCvCYNxkiTPU=
+github.com/forhomme/app-base v0.1.9/go.mod h1:Ic6MsJrcuzXLKiJBNw7iQTkoACiwoKtI4knr6DV8tuk=
 github.com/frankban/quicktest v1.14.4 h1:g2rn0vABPOOXmZUj+vbmUp0lPoXEMuhTpIluN0XL9UY=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
@@ -276,6 +278,10 @@ github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcU
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8=
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
+github.com/uptrace/opentelemetry-go-extra/otellogrus v0.2.3 h1:m5eNyOhch/7tyK6aN6eRRpNoD1vM8PNh64dA05X22Js=
+github.com/uptrace/opentelemetry-go-extra/otellogrus v0.2.3/go.mod h1:APPUXm9BbpH7NFkfpbw04raZSitzl19/3NOCu0rbI4E=
+github.com/uptrace/opentelemetry-go-extra/otelutil v0.2.3 h1:LyGS9cIZV0YVhE81zwfMhIE2l2flcj3wn5IoK4VkbWA=
+github.com/uptrace/opentelemetry-go-extra/otelutil v0.2.3/go.mod h1:RvCYhPchLhvQ9l9C9goblbgO7BaKt597kBMf5mgKyo0=
 github.com/uptrace/uptrace-go v1.21.0 h1:oJoUjhiVT7aiuoG6B3ClVHtJozLn3cK9hQt8U5dQO1M=
 github.com/uptrace/uptrace-go v1.21.0/go.mod h1:/aXAFGKOqeAFBqWa1xtzLnGX2xJm1GScqz9NJ0TJjLM=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=

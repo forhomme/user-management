@@ -3,11 +3,11 @@ package adapters
 import (
 	"context"
 	"errors"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"go.opentelemetry.io/otel/codes"
 	"user-management/app/domain/course"
 
-	"github.com/forhomme/app-base/usecase/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,12 +17,12 @@ import (
 
 type CourseMongoRepository struct {
 	cfg           *config.Config
-	log           logger.Logger
+	log           *baselogger.Logger
 	tracer        *telemetry.OtelSdk
 	mongoDatabase *mongo.Database
 }
 
-func NewCourseMongoRepository(cfg *config.Config, log logger.Logger, mongoDatabase *mongo.Database, tracer *telemetry.OtelSdk) *CourseMongoRepository {
+func NewCourseMongoRepository(cfg *config.Config, log *baselogger.Logger, mongoDatabase *mongo.Database, tracer *telemetry.OtelSdk) *CourseMongoRepository {
 	return &CourseMongoRepository{
 		cfg:           cfg,
 		log:           log,

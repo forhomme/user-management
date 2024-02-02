@@ -2,9 +2,9 @@ package _interface
 
 import (
 	"github.com/forhomme/app-base/errs"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/controller"
-	"github.com/forhomme/app-base/usecase/logger"
 	"net/http"
 	"user-management/app/common/utils"
 	"user-management/app/domain/course"
@@ -16,12 +16,12 @@ import (
 
 type HttpServer struct {
 	cfg    *config.Config
-	logger logger.Logger
+	logger *baselogger.Logger
 	tracer *telemetry.OtelSdk
 	app    usecase.Application
 }
 
-func NewHttpServer(cfg *config.Config, log logger.Logger, tracer *telemetry.OtelSdk, app usecase.Application) HttpServer {
+func NewHttpServer(cfg *config.Config, log *baselogger.Logger, tracer *telemetry.OtelSdk, app usecase.Application) HttpServer {
 	return HttpServer{cfg: cfg, logger: log, tracer: tracer, app: app}
 }
 

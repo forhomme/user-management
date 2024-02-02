@@ -19,7 +19,6 @@ import (
 	"github.com/forhomme/app-base/infrastructure/router"
 	"github.com/forhomme/app-base/usecase/database"
 	"github.com/forhomme/app-base/usecase/http_handler"
-	"github.com/forhomme/app-base/usecase/logger"
 	"github.com/forhomme/app-base/usecase/storage"
 	"github.com/spf13/viper"
 )
@@ -30,7 +29,7 @@ const (
 )
 
 func main() {
-	appLogger := baselogger.NewBaseLogger(StdOut)
+	appLogger := baselogger.NewLogger()
 	// Execute query
 	err := cmd.Execute(appLogger, newInjectEndpoints(appLogger))
 	if err != nil {
@@ -38,11 +37,11 @@ func main() {
 	}
 }
 
-func newInjectEndpoints(appLogger logger.Logger) cmd.InjectEndpoints {
+func newInjectEndpoints(appLogger *baselogger.Logger) cmd.InjectEndpoints {
 	return func(
 		viper *viper.Viper,
 		route *router.Router,
-		logger logger.Logger,
+		logger *baselogger.Logger,
 		httpHandler http_handler.HttpHandler,
 		sqlHandler map[string]database.SqlHandler,
 		storageHandler map[string]storage.Storage,
@@ -51,7 +50,7 @@ func newInjectEndpoints(appLogger logger.Logger) cmd.InjectEndpoints {
 
 		cfg, err := config.LoadLocalConfig(viper)
 		if err != nil {
-			appLogger.Fataf(err, "LoadConfig: %v", err)
+			appLogger.Fatalf("LoadConfig: %v", err)
 		}
 
 		ctx := context.TODO()
@@ -98,7 +97,7 @@ func newInjectEndpoints(appLogger logger.Logger) cmd.InjectEndpoints {
 
 		err = InitDB(sqlHandler[constants.Write], constants.DBInitFile)
 		if err != nil {
-			appLogger.Fataf(err, "Database init: %w", err)
+			appLogger.Fatalf("Database init: %v", err)
 		}
 
 		return nil

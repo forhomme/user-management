@@ -19,7 +19,7 @@ func (d commandMetricsDecorator[C]) Handle(ctx context.Context, cmd C) (err erro
 	start := time.Now()
 	actionName := strings.ToLower(generateActionName(cmd))
 	counter, _ := d.client.Metric.Int64Counter(fmt.Sprintf("commands.%s.duration", actionName),
-		metric.WithUnit("1"),
+		metric.WithUnit("ms"),
 		metric.WithDescription("Function latency in ms"))
 
 	successCounter, _ := d.client.Metric.Int64Counter(fmt.Sprintf("commands.%s.success", actionName),
@@ -58,7 +58,7 @@ func (d queryMetricsDecorator[C, R]) Handle(ctx context.Context, query C) (resul
 	start := time.Now()
 	actionName := strings.ToLower(generateActionName(query))
 	counter, _ := d.client.Metric.Int64Counter(fmt.Sprintf("queries.%s.duration", actionName),
-		metric.WithUnit("1"),
+		metric.WithUnit("ms"),
 		metric.WithDescription("Function latency in ms"))
 
 	successCounter, _ := d.client.Metric.Int64Counter(fmt.Sprintf("queries.%s.success", actionName),

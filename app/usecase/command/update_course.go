@@ -2,8 +2,8 @@ package command
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
-	"github.com/forhomme/app-base/usecase/logger"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/course"
 )
@@ -14,7 +14,7 @@ type replaceCourseRepository struct {
 	dbRepo course.CommandRepository
 }
 
-func NewReplaceCourseRepository(dbRepo course.CommandRepository, logger logger.Logger, tracer *telemetry.OtelSdk) decorator.CommandHandler[*course.CoursePath] {
+func NewReplaceCourseRepository(dbRepo course.CommandRepository, logger *baselogger.Logger, tracer *telemetry.OtelSdk) decorator.CommandHandler[*course.CoursePath] {
 	return decorator.ApplyCommandDecorators[*course.CoursePath](
 		replaceCourseRepository{dbRepo: dbRepo},
 		logger,

@@ -2,8 +2,8 @@ package command
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
-	"github.com/forhomme/app-base/usecase/logger"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/course"
 )
@@ -14,7 +14,7 @@ type addCategoryRepository struct {
 	dbRepo course.CommandRepository
 }
 
-func NewAddCategoryRepository(dbRepo course.CommandRepository, log logger.Logger, tracer *telemetry.OtelSdk) decorator.CommandHandler[*course.Category] {
+func NewAddCategoryRepository(dbRepo course.CommandRepository, log *baselogger.Logger, tracer *telemetry.OtelSdk) decorator.CommandHandler[*course.Category] {
 	return decorator.ApplyCommandDecorators[*course.Category](
 		addCategoryRepository{dbRepo: dbRepo},
 		log,

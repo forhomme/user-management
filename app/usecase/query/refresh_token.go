@@ -2,8 +2,8 @@ package query
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
-	"github.com/forhomme/app-base/usecase/logger"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/user"
 	"user-management/config"
@@ -16,7 +16,7 @@ type refreshTokenRepository struct {
 	cfg    *config.Config
 }
 
-func NewRefreshTokenRepository(dbRepo user.QueryRepository, logger logger.Logger, cfg *config.Config, tracer *telemetry.OtelSdk) decorator.QueryHandler[*user.RefreshToken, *user.Token] {
+func NewRefreshTokenRepository(dbRepo user.QueryRepository, logger *baselogger.Logger, cfg *config.Config, tracer *telemetry.OtelSdk) decorator.QueryHandler[*user.RefreshToken, *user.Token] {
 	return decorator.ApplyQueryDecorators[*user.RefreshToken, *user.Token](
 		refreshTokenRepository{dbRepo: dbRepo, cfg: cfg},
 		logger,

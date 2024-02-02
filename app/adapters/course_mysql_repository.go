@@ -2,9 +2,9 @@ package adapters
 
 import (
 	"context"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
 	db "github.com/forhomme/app-base/usecase/database"
-	"github.com/forhomme/app-base/usecase/logger"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/codes"
 	course2 "user-management/app/domain/course"
@@ -29,12 +29,12 @@ const (
 
 type CourseMysqlRepository struct {
 	cfg    *config.Config
-	log    logger.Logger
+	log    *baselogger.Logger
 	tracer *telemetry.OtelSdk
 	db.SqlHandler
 }
 
-func NewCourseMysqlRepository(cfg *config.Config, log logger.Logger, sqlHandler db.SqlHandler, tracer *telemetry.OtelSdk) *CourseMysqlRepository {
+func NewCourseMysqlRepository(cfg *config.Config, log *baselogger.Logger, sqlHandler db.SqlHandler, tracer *telemetry.OtelSdk) *CourseMysqlRepository {
 	return &CourseMysqlRepository{
 		cfg:        cfg,
 		log:        log,

@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
 	"github.com/forhomme/app-base/usecase/database"
-	"github.com/forhomme/app-base/usecase/logger"
 	"github.com/forhomme/app-base/usecase/storage"
 	"go.mongodb.org/mongo-driver/mongo"
 	"user-management/app/adapters"
@@ -13,7 +13,7 @@ import (
 	"user-management/config"
 )
 
-func NewApplication(cfg *config.Config, log logger.Logger, client *mongo.Client, sqlHandler database.SqlHandler, storage storage.Storage, tracer *telemetry.OtelSdk) usecase.Application {
+func NewApplication(cfg *config.Config, log *baselogger.Logger, client *mongo.Client, sqlHandler database.SqlHandler, storage storage.Storage, tracer *telemetry.OtelSdk) usecase.Application {
 	mongoDB := client.Database(cfg.Database)
 	mongoRepo := adapters.NewCourseMongoRepository(cfg, log, mongoDB, tracer)
 	mysqlRepo := adapters.NewCourseMysqlRepository(cfg, log, sqlHandler, tracer)

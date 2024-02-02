@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	domain2 "github.com/forhomme/app-base/domain"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
-	"github.com/forhomme/app-base/usecase/logger"
 	"github.com/forhomme/app-base/usecase/storage"
 	"path/filepath"
 	"time"
@@ -21,7 +21,7 @@ type uploadFileHandler struct {
 	storage storage.Storage
 }
 
-func NewUploadFileHandler(cfg *config.Config, storage storage.Storage, logger logger.Logger, tracer *telemetry.OtelSdk) decorator.QueryHandler[*domain.UploadFile, *domain.UploadFileResponse] {
+func NewUploadFileHandler(cfg *config.Config, storage storage.Storage, logger *baselogger.Logger, tracer *telemetry.OtelSdk) decorator.QueryHandler[*domain.UploadFile, *domain.UploadFileResponse] {
 	return decorator.ApplyQueryDecorators[*domain.UploadFile, *domain.UploadFileResponse](
 		uploadFileHandler{
 			cfg:     cfg,

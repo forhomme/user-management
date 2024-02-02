@@ -3,8 +3,8 @@ package command
 import (
 	"context"
 	"errors"
+	"github.com/forhomme/app-base/infrastructure/baselogger"
 	"github.com/forhomme/app-base/infrastructure/telemetry"
-	"github.com/forhomme/app-base/usecase/logger"
 	"user-management/app/common/decorator"
 	"user-management/app/domain/user"
 )
@@ -15,7 +15,7 @@ type changePasswordRepository struct {
 	dbRepo user.CommandRepository
 }
 
-func NewChangePasswordRepository(dbRepo user.CommandRepository, logger logger.Logger, tracer *telemetry.OtelSdk) decorator.CommandHandler[*user.ChangePassword] {
+func NewChangePasswordRepository(dbRepo user.CommandRepository, logger *baselogger.Logger, tracer *telemetry.OtelSdk) decorator.CommandHandler[*user.ChangePassword] {
 	return decorator.ApplyCommandDecorators[*user.ChangePassword](
 		changePasswordRepository{dbRepo: dbRepo},
 		logger,

@@ -3,7 +3,7 @@ module user-management
 go 1.20
 
 require (
-	github.com/forhomme/app-base v0.1.8
+	github.com/forhomme/app-base v0.1.9
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.1
 	github.com/mitchellh/mapstructure v1.5.0
@@ -64,6 +64,8 @@ require (
 	github.com/spf13/cobra v1.7.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otellogrus v0.2.3 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelutil v0.2.3 // indirect
 	github.com/uptrace/uptrace-go v1.21.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
